@@ -17,15 +17,18 @@ export class ServerController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Req() req: Request, @Body() createServerDto: CreateServerDto) {
-    const userData = req.user as User;
-    return this.serverService.create(+userData.id, createServerDto.servername);
+  async create(@Req() req: Request, @Body() createServerDto: CreateServerDto) {
+    const userData = req.user as UserDataDto;
+    // 새로운 서버 생성
+    await this.serverService.create(+userData.id, createServerDto.servername);
+    // 새로운 서버 리스트 전달
+    return await this.serverService.findUserServers(+userData.id);
   }
 
   @Get()
   @UseGuards(JwtAuthGuard)
   async findUserServer(@Req() req: Request) {
-    const userData = req.user as User;
+    const userData = req.user as UserDataDto;
     const serverData = await this.serverService.findUserServers(+userData.id);
     return { userData, serverData };
   }
@@ -41,7 +44,7 @@ export class ServerController {
   @Post('/invite')
   @UseGuards(JwtAuthGuard)
   createJoinCode(@Req() req: Request, @Body('serverId') serverId: number) {
-    const userData = req.user as User;
+    const userData = req.user as UserDataDto;
 
     return this.serverService.createJoinCode(userData.id, +serverId);
   }
@@ -49,7 +52,7 @@ export class ServerController {
   @Post('/join')
   @UseGuards(JwtAuthGuard)
   joinServer(@Req() req: Request, @Body('inviteCode') inviteCode: string) {
-    const userData = req.user as User;
+    const userData = req.user as UserDataDto;
     return this.serverService.joinServer(userData.id, inviteCode);
   }
 

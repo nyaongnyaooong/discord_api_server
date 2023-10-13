@@ -6,11 +6,8 @@ import { User } from 'src/entities/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtConfig } from 'src/configs/jwt.config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './security/passport.jwt.strategy';
-import { ServerService } from 'src/server/server.service';
-import { ChannelService } from 'src/channel/channel.service';
 
 @Module({
   imports: [

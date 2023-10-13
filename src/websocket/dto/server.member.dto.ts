@@ -4,6 +4,7 @@ export class serverMemberDto {
   joinedAt: string;
   user: { 
     nickname: string;
+    avatar: string;
     createdAt: string;
   }
 }

@@ -25,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(StrategyJwt) {
 
   // 검증 성공 시 validate 함수 실행하여 리턴값을 request.user에 저장, 실패 시는 에러
   async validate(payload: Payload, done: VerifiedCallback): Promise<any> {
-    const user = await this.userService.findOne(payload.id);
+    const user = await this.userService.findOneById(payload.id);
 
     // done은 검증 후 데이터를 어떻게 처리할 것인지에 대한 함수
     if (!user) return done(new UnauthorizedException({ message: 'user does not exist' }), false);

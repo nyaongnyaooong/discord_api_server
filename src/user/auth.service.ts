@@ -16,22 +16,16 @@ export class AuthService {
     private configService: ConfigService,
     private jwtService: JwtService,
     @InjectRepository(User)
-    private authRepository: Repository<User>,
+    private userRepository: Repository<User>,
   ) { }
 
   async createJwt(loginDto: LoginDto) {
-    const userFind = await this.authRepository.findOne({ where: { mail: loginDto.mail } });
-    // 존재하지 않는 메일주소
-    if (!userFind) throw new UnauthorizedException('존재하지 않는 메일주소입니다');
-
-    const validatePassword = await bcrypt.compare(loginDto.password, userFind.password)
-    // 비밀번호 불일치
-    if (!validatePassword) throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
+    const userRecord = await this.verifyUser(loginDto);
 
     // payload 생성
     const payload: Payload = {
-      id: userFind.id,
-      mail: userFind.mail,
+      id: userRecord.id,
+      mail: userRecord.mail,
     }
 
     // jwt 반환
@@ -39,6 +33,23 @@ export class AuthService {
   }
 
   async tokenValidateUser(payload: Payload) {
-    await this.authRepository.findOne({ where: { id: payload.id } })
+    await this.userRepository.findOne({ where: { id: payload.id } })
+  }
+
+  /**
+   * 유저 검증
+   * @param {LoginDto} loginDto 입력한 이메일과 패스워드가 올바른지 검증
+   * @returns {User}
+  */
+  async verifyUser(loginDto: LoginDto) {
+    const userRecord = await this.userRepository.findOne({ where: { mail: loginDto.mail } });
+    // 존재하지 않는 메일주소
+    if (!userRecord) throw new UnauthorizedException('존재하지 않는 메일주소입니다');
+
+    const validatePassword = await bcrypt.compare(loginDto.password, userRecord.password);
+    // 비밀번호 불일치
+    if (!validatePassword) throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
+
+    return userRecord;
   }
 }

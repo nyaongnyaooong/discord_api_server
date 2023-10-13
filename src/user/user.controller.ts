@@ -10,6 +10,7 @@ import { User } from 'src/entities/user.entity';
 import { ServerService } from 'src/server/server.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserDataDto } from './dto/user.data.dto';
+import { UpdatePwDto } from './dto/update.pw.dto';
 
 
 @Controller('user')
@@ -53,6 +54,14 @@ export class UserController {
   async updateAvata(@Req() req: Request, @UploadedFile() imgFile: Express.Multer.File) {
     const userData = req.user as UserDataDto
     return this.userService.updateAvata(userData, imgFile)
+  }
+
+  @Patch('password')
+  @UseGuards(JwtAuthGuard)
+  async updatePw(@Req() req: Request, @Body() updatePwDto: UpdatePwDto) {
+    const userData = req.user as UserDataDto
+
+    return this.userService.updatePw(userData, updatePwDto)
   }
 
 

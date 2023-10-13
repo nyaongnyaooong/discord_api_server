@@ -37,10 +37,10 @@ export class ServerService {
 
   // 서버에 속한 유저 리스트
   async findServerUsers(reqUserId: number, serverId: number) {
-    const userList = await this.serverMemberRepository.createQueryBuilder('member')
-      .leftJoin('member.user', 'user')
-      .select(['member', 'user.nickname', 'user.createdAt'])
-      .where('member.server_Id = :server_Id', { server_Id: serverId })
+    const userList = await this.serverMemberRepository.createQueryBuilder('member') // 서버멤버 레포지토리를 member라 명명
+      .leftJoin('member.user', 'user') // member와 user와 left join
+      .select(['member', 'user.nickname', 'user.avatar', 'user.createdAt']) // record들 중에서 member의 모든 컬럼과 user의 특정 컬럼만 가져옴
+      .where('member.server_Id = :server_Id', { server_Id: serverId }) // 요청한 서버 id에 속한 유저, member 레코드들을 가져옴
       .getMany()
 
     const isMember = userList.filter(member => reqUserId === member.user_Id);

@@ -45,6 +45,7 @@ export class WebsocketService {
     client.broadcast.emit('online', this.clientInfo[client.id].id)
   }
 
+  // 클라이언트 접속종료시 유저 데이터 삭제
   deleteUserInfo = (server: Server, client: Socket) => {
     // 모든 보이스 채널 퇴장
     this.leaveVoice(server, client);
@@ -62,6 +63,7 @@ export class WebsocketService {
     delete this.clientInfo[client.id];
   }
 
+  // 현재 서버에 접속한 유저의 목록 
   reqLoginMember = (client: Socket, serverMembers: serverMemberDto[]) => {
     const onlineUsers = serverMembers.filter(member => this.userInfo[member.user_Id])
 
