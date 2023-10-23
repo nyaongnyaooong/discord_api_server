@@ -8,15 +8,27 @@ import { ServerMember } from 'src/entities/server.member.entity';
 import { HttpException, UnauthorizedException } from '@nestjs/common/exceptions';
 import { HttpStatus } from '@nestjs/common/enums';
 import * as bcrypt from 'bcrypt';
+import * as AWS from 'aws-sdk';
 
 @Injectable()
 export class ServerService {
+  private readonly s3: AWS.S3;
+
   constructor(
     @InjectRepository(ServerEntity)
     private serverRepository: Repository<ServerEntity>,
     @InjectRepository(ServerMember)
     private serverMemberRepository: Repository<ServerMember>,
-  ) { }
+  ) {
+    AWS.config.update({
+      region: process.env.AWS_S3_REGION,
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+      }
+    });
+    this.s3 = new AWS.S3();
+  }
 
   invitationCode = [];
 
@@ -81,8 +93,6 @@ export class ServerService {
     })
   }
 
-
-
   // 서버명 수정
   async updateServer(updateServerDto: UpdateServerDto) {
     const server = await this.serverRepository.findOne({
@@ -103,6 +113,39 @@ export class ServerService {
     this.serverRepository.softDelete({ id });
   }
 
+  // 서버 아바타 수정
+  async updateAvatar(userId: number, serverId: number, newAvatar: Express.Multer.File) {
+    // 아바타 수정 요청한 서버 레코드를 db에서 검색
+    const server = await this.serverRepository.findOne({ where: { id: serverId } })
+
+    // 요청한 유저와 서버 주인이 일치하는지 확인
+    if (server.ownerId !== userId) throw new HttpException('unauthorized', HttpStatus.UNAUTHORIZED)
+
+    // 저장할 파일명
+    const filename = server.toString();
+    // 저장할 폴더
+    const folder = 'serverAvatars';
+
+    // s3 업로드
+    const reqUpload = await this.s3
+      .putObject({
+        Bucket: process.env.AWS_S3_BUCKET + '/' + folder,
+        ACL: 'public-read',
+        Key: filename,
+        Body: newAvatar.buffer,
+      })
+      .promise();
+
+    const imgUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${folder}/${filename}`;
+
+    server.avatar = imgUrl;
+
+    // 유저 레코드 업데이트
+    this.serverRepository.save(server);
+
+    return imgUrl;
+  }
+
   randomString = (length: number) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
@@ -120,5 +163,10 @@ export class ServerService {
 
   remove(id: number) {
     return `This action removes a #${id} server`;
+  }
+
+  // 서버 id로 유저 record 검색
+  async findOneById(serverId: number) {
+    return this.serverRepository.findOne({ where: { id: serverId } });
   }
 }

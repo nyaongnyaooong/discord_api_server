@@ -13,6 +13,10 @@ export class ServerEntity {
 
   @Column()
   name: string;
+  
+  // 아바타 이미지 주소
+  @Column({ default: '' })
+  avatar: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

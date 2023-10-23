@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { ServerService } from './server.service';
 import { CreateServerDto } from './dto/create-server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
@@ -6,6 +6,7 @@ import { JwtAuthGuard } from 'src/user/security/auth.guard';
 import { Request } from 'express';
 import { User } from 'src/entities/user.entity';
 import { UserDataDto } from 'src/user/dto/user.data.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 
 @Controller('server')
@@ -54,6 +55,14 @@ export class ServerController {
   joinServer(@Req() req: Request, @Body('inviteCode') inviteCode: string) {
     const userData = req.user as UserDataDto;
     return this.serverService.joinServer(userData.id, inviteCode);
+  }
+
+  @Patch('avatar/:serverId')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async updateAvatar(@Req() req: Request, @Param('serverId') serverId: string, @UploadedFile() imgFile: Express.Multer.File) {
+    const userData = req.user as UserDataDto;
+    return this.serverService.updateAvatar(+userData.id, +serverId, imgFile);
   }
 
 }
