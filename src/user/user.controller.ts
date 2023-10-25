@@ -35,7 +35,8 @@ export class UserController {
       path: '/',
       httpOnly: true,
       maxAge: 36000000,
-      secure: true,
+      // 추후 https시 true로 변경
+      // secure: true,
       sameSite: 'strict',
     })
     return res.status(HttpStatus.ACCEPTED).json(jwt);

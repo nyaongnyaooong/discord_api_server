@@ -26,6 +26,7 @@ export class ServerController {
     return await this.serverService.findUserServers(+userData.id);
   }
 
+  // 유저의 서버 list
   @Get()
   @UseGuards(JwtAuthGuard)
   async findUserServer(@Req() req: Request) {
