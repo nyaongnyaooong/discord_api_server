@@ -19,7 +19,7 @@ const websocketOption: GatewayMetadata = {
   }
 }
 
-@WebSocketGateway(+process.env.STATIC_SERVER_URL || 3030, websocketOption)
+@WebSocketGateway(+process.env.SOCKET_PORT || 3030, websocketOption)
 export class WebsocketGateway {
   constructor(
     private readonly websocketService: WebsocketService,
