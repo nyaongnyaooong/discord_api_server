@@ -51,8 +51,13 @@ export class WebsocketService {
     this.leaveVoice(server, client);
 
     let serverId: string | null;
-    Object.keys(client.rooms).forEach(room => { if (room !== client.id) serverId = room })
-
+    console.log('keys',Object.keys(client.rooms))
+    client.rooms.forEach(room => { 
+      console.log('room?', room)
+      if (room !== client.id) serverId = room 
+    })
+    console.log('cr?', client.rooms)
+    console.log('serverId?', serverId)
     // 서버 클라이언트들에게 오프라인임을 알림
     client.broadcast.to(serverId).emit('offline', this.clientInfo[client.id].id)
 

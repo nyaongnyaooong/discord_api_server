@@ -1,6 +1,6 @@
 import { WebSocketGateway, SubscribeMessage, MessageBody, WebSocketServer, ConnectedSocket, GatewayMetadata } from '@nestjs/websockets';
 import { WebsocketService } from './websocket.service';
-import { Server, Socket } from 'socket.io';
+import { Server, ServerOptions, Socket } from 'socket.io';
 import { ChatSocketDto } from './dto/chat.socket.dto';
 import { UserDataDto } from 'src/user/dto/user.data.dto';
 import { JoinVoiceDto } from './dto/join.voice.dto';
@@ -8,6 +8,7 @@ import { AnswerSocketDto } from './dto/answer.socket.dto';
 import { CandidateSocketDto } from './dto/candidate.socket.dto';
 import { OfferSocketDto } from './dto/offer.socket.dto';
 import { serverMemberDto } from './dto/server.member.dto';
+import { ConfigService } from '@nestjs/config';
 
 const websocketOption: GatewayMetadata = {
   cors: {
@@ -19,14 +20,37 @@ const websocketOption: GatewayMetadata = {
   }
 }
 
-@WebSocketGateway(+process.env.SOCKET_PORT || 3030, websocketOption)
+@WebSocketGateway(+process.env.SOCKET_PORT || 3060, websocketOption)
+// @WebSocketGateway()
 export class WebsocketGateway {
   constructor(
+    private readonly configService: ConfigService,
     private readonly websocketService: WebsocketService,
-  ) { }
+  ) {
+
+  }
+
 
   @WebSocketServer()
   server: Server;
+
+  // afterInit() {
+  //   const wsPort = this.configService.get<number>('SOCKET_PORT');
+  //   console.log(wsPort)
+  //   this.server = new Server({
+  //     transports: ['websocket'],
+  //     cors: {
+  //       origin: [process.env.CLIENT_SERVER_URL, 'http://220.120.197.83:3000'],
+  //       methods: "GET, POST, PUT, PATCH, DELETE, HEAD",
+  //       preflightContinue: false,
+  //       optionsSuccessStatus: 204,
+  //       credentials: true,
+  //     },
+  //     allowEIO3: true,
+  //   });
+
+  //   this.server.listen(3060);
+  // }
 
   async handleConnection(client: Socket) {
     // 클라이언트와 연결되었을 때 실행할 코드

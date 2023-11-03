@@ -7,7 +7,9 @@ import { Chat } from 'src/entities/chat.entity';
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forFeature([Chat]),
   ],
   providers: [WebsocketGateway, WebsocketService],
