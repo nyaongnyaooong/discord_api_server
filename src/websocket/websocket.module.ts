@@ -4,6 +4,7 @@ import { WebsocketGateway } from './websocket.gateway';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Chat } from 'src/entities/chat.entity';
+import { Dm } from 'src/entities/dm.entity';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { Chat } from 'src/entities/chat.entity';
       isGlobal: true,
     }),
     TypeOrmModule.forFeature([Chat]),
+    TypeOrmModule.forFeature([Dm]),
   ],
   providers: [WebsocketGateway, WebsocketService],
 })

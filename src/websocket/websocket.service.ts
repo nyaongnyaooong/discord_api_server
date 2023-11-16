@@ -10,6 +10,8 @@ import { JoinVoiceDto } from './dto/join.voice.dto';
 import { serverMemberDto } from './dto/server.member.dto';
 import { VoiceParticipate } from './interface/voice.participate';
 import { VoiceServer } from './interface/voice.server';
+import { Dm } from 'src/entities/dm.entity';
+import { DmSocketDto } from './dto/dm.socket.dto';
 
 
 @Injectable()
@@ -18,6 +20,8 @@ export class WebsocketService {
   constructor(
     @InjectRepository(Chat)
     private readonly chatRepository: Repository<Chat>,
+    @InjectRepository(Dm)
+    private readonly dmRepository: Repository<Dm>,
   ) {
   }
 
@@ -51,13 +55,14 @@ export class WebsocketService {
     this.leaveVoice(server, client);
 
     let serverId: string | null;
-    console.log('keys',Object.keys(client.rooms))
-    client.rooms.forEach(room => { 
+    // console.log('keys',Object.keys(client.rooms))
+    const membersObject = {}
+    client.rooms.forEach(room => {
       console.log('room?', room)
-      if (room !== client.id) serverId = room 
+      if (room !== client.id) {
+        serverId = room
+      }
     })
-    console.log('cr?', client.rooms)
-    console.log('serverId?', serverId)
     // 서버 클라이언트들에게 오프라인임을 알림
     client.broadcast.to(serverId).emit('offline', this.clientInfo[client.id].id)
 
@@ -98,7 +103,7 @@ export class WebsocketService {
   sendChatHistory = async (channelId: number, client: Socket) => {
     // 채팅 history를 db에서 불러옴
     const chatListData = await this.findChat(channelId);
-
+    console.log(chatListData)
     // 채팅 history 전송
     return client.emit('chatHistory', chatListData)
   }
@@ -197,8 +202,56 @@ export class WebsocketService {
 
 
 
-  dm = () => {
+  sendDmHistory = async (targetId: number, client: Socket) => {
+    const userId = this.clientInfo[client.id].id
+    console.log(targetId)
+    console.log(userId)
 
+    const dmList = await this.dmRepository.find({
+      where: [
+        { sender_Id: userId, receiver_Id: targetId },
+        { sender_Id: targetId, receiver_Id: userId }
+      ],
+      relations: {
+        sender: true,
+        receiver: true
+      },
+      order: { sendAt: 'ASC' },
+    })
+
+
+    // // 채팅 history를 db에서 불러옴
+    // const chatListData = await this.findChat(channelId);
+
+    console.log(dmList)
+    // // 채팅 history 전송
+    return client.emit('dmHistory', dmList)
+  }
+
+  // 채팅 추가
+  createDm = async (dmSocketDto: DmSocketDto, client: Socket) => {
+    dmSocketDto.type = dmSocketDto.type || 'text';
+
+    const newDm = await this.dmRepository.save(dmSocketDto);
+    const newDmWithUser = await this.dmRepository.findOne({ 
+      where: { id: newDm.id }, 
+      relations: {
+        sender: true,
+        receiver: true
+      },
+    })
+
+    console.log(this.userInfo[dmSocketDto.receiver_Id])
+    const receiverSocketId = this.userInfo[dmSocketDto.receiver_Id];
+    client.emit('newDm', newDmWithUser);
+    client.to(receiverSocketId).emit('newDm', newDmWithUser);
+    // return server.to(room).emit('newDm', response);
+  }
+
+  // 채널 채팅 기록
+  findDm = async (channelId: number) => {
+    // 채팅 table + 유저 table 조인
+    return await this.chatRepository.find({ where: { channel_id: channelId }, relations: { user: true, } })
   }
 
 }

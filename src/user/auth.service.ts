@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -29,7 +29,7 @@ export class AuthService {
     }
 
     // jwt 반환
-    return { accessToken: this.jwtService.sign(payload, { expiresIn: '7d' }) }
+    return { accessToken: this.jwtService.sign(payload, { expiresIn: '1d' }) }
   }
 
   async tokenValidateUser(payload: Payload) {
@@ -44,7 +44,7 @@ export class AuthService {
   async verifyUser(loginDto: LoginDto) {
     const userRecord = await this.userRepository.findOne({ where: { mail: loginDto.mail } });
     // 존재하지 않는 메일주소
-    if (!userRecord) throw new UnauthorizedException('존재하지 않는 메일주소입니다');
+    if (!userRecord) throw new BadRequestException('존재하지 않는 메일주소입니다');
 
     const validatePassword = await bcrypt.compare(loginDto.password, userRecord.password);
     // 비밀번호 불일치

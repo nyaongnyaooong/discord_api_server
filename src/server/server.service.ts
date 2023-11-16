@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateServerDto } from './dto/create-server.dto';
+import { CreateServerDto } from './dto/create.server.dto';
 import { UpdateServerDto } from './dto/update-server.dto';
 import { ServerEntity } from 'src/entities/server.entity';
 import { ServerMember } from 'src/entities/server.member.entity';
@@ -51,31 +51,57 @@ export class ServerService {
   async findServerUsers(reqUserId: number, serverId: number) {
     const userList = await this.serverMemberRepository.createQueryBuilder('member') // 서버멤버 레포지토리를 member라 명명
       .leftJoin('member.user', 'user') // member와 user와 left join
-      .select(['member', 'user.nickname', 'user.avatar', 'user.createdAt']) // record들 중에서 member의 모든 컬럼과 user의 특정 컬럼만 가져옴
+      .select(['member', 'user.id', 'user.mail', 'user.nickname', 'user.avatar', 'user.createdAt', 'user.updatedAt']) // record들 중에서 member의 모든 컬럼과 user의 특정 컬럼만 가져옴
       .where('member.server_Id = :server_Id', { server_Id: serverId }) // 요청한 서버 id에 속한 유저, member 레코드들을 가져옴
       .getMany()
 
     const isMember = userList.filter(member => reqUserId === member.user_Id);
-    if (!isMember.length) throw new UnauthorizedException('user is not member of server');
+    if (!isMember.length) throw new HttpException('user is not member of server', HttpStatus.UNAUTHORIZED);
 
     return userList;
   }
 
+  // 유저가 속한 모든 서버의 모든 멤버들
+  async findMembers(userId: number) {
+    const servers = await this.findUserServers(userId);
+
+    const serverMembers = await Promise.all(
+      servers.map(async (server) => {
+        return await this.findServerUsers(userId, server.server_Id);
+      })
+    );
+
+    return serverMembers;
+  }
+
   // 입장 코드 생성
   async createJoinCode(userId: number, serverId: number) {
+    const servers = await this.findUserServers(userId);
+
+    const isBelong = servers.filter(server => server.server_Id === serverId);
+    if (isBelong.length < 1) throw new HttpException({
+      message: 'not belong to server',
+      statusCode: 401
+    }, HttpStatus.UNAUTHORIZED)
+
     const code = this.randomString(10)
     this.invitationCode[code] = serverId;
     setTimeout(() => {
       delete this.invitationCode[code];
-    }, 1000 * 60 * 5)
+    }, 1000 * 60 * 5);
+
     return code;
   }
 
   // 유저 서버 입장
   async joinServer(userId: number, inviteCode: string) {
 
+    // 입장 코드가 유효하지 않음
     const reqServerId = this.invitationCode[inviteCode];
-    if (!reqServerId) throw new HttpException('code has been expired.', HttpStatus.BAD_REQUEST)
+    if (!reqServerId) throw new HttpException({
+      message: 'code is not valid or has been expired',
+      statusCode: 404
+    }, HttpStatus.NOT_FOUND)
 
     // 해당 서버에 유저가 속했는지 확인
     const alreadyJoined = await this.serverMemberRepository.findOne({
@@ -85,12 +111,20 @@ export class ServerService {
       }
     })
 
-    if (alreadyJoined) throw new HttpException('already joined server', HttpStatus.BAD_REQUEST)
+    // 이미 서버에 일원
+    if (alreadyJoined) throw new HttpException({
+      message: 'already joined server',
+      statusCode: HttpStatus.FORBIDDEN
+    }, HttpStatus.FORBIDDEN)
 
-    return await this.serverMemberRepository.save({
+    await this.serverMemberRepository.save({
       user_Id: userId,
       server_Id: reqServerId
-    })
+    });
+
+    return {
+      message: 'joined server'
+    }
   }
 
   // 서버명 수정
@@ -119,7 +153,10 @@ export class ServerService {
     const server = await this.serverRepository.findOne({ where: { id: serverId } })
 
     // 요청한 유저와 서버 주인이 일치하는지 확인
-    if (server.ownerId !== userId) throw new HttpException('unauthorized', HttpStatus.UNAUTHORIZED)
+    if (server.ownerId !== userId) throw new HttpException({
+      message: 'unauthorized',
+      statusCode: HttpStatus.UNAUTHORIZED
+    }, HttpStatus.UNAUTHORIZED)
 
     // 저장할 파일명
     const filename = server.toString();

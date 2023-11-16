@@ -3,13 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { RegisterDto } from './dto/register.dto';
+import { UserRegisterDto } from './dto/user.register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { User } from 'src/entities/user.entity';
 import { UserDataDto } from './dto/user.data.dto';
 import * as AWS from 'aws-sdk';
 import { UpdatePwDto } from './dto/update.pw.dto';
+import { UserCreatedDto } from './dto/user.created.dto';
 
 
 @Injectable()
@@ -35,16 +36,24 @@ export class UserService {
 
 
   // 유저 회원가입
-  async register(registerDto: RegisterDto) {
+  async register(userRegisterDto: UserRegisterDto) {
     // 중복된 메일주소가 있는지 확인
-    const duplicatedUser = await this.userRepository.findOne({ where: { mail: registerDto.mail } });
+    const duplicatedUser = await this.userRepository.findOne({ where: { mail: userRegisterDto.mail } });
     if (duplicatedUser) throw new UnauthorizedException('duplicated mail adress');
 
     // 패스워드 해시화
-    registerDto.password = await this.HashPassword(registerDto.password)
+    userRegisterDto.password = await this.HashPassword(userRegisterDto.password);
+
+    const save = await this.userRepository.save(userRegisterDto);
+    const userCreatedDto: UserCreatedDto = {
+      id: save.id,
+      mail: save.mail,
+      nickname: save.nickname,
+      createdAt: save.createdAt,
+    };
 
     // db에 저장
-    return this.userRepository.save(registerDto);
+    return userCreatedDto;
   }
 
   // 유저 로그인
@@ -81,6 +90,18 @@ export class UserService {
     this.userRepository.save(user);
 
     return imgUrl;
+  }
+
+  // 유저 닉네임 업데이트
+  updateNickname = async (userId: number, newNickname: string) => {
+    const user = await this.findOneById(userId);
+    console.log('user', user)
+    user.nickname = newNickname;
+    console.log('user2', user)
+
+    // 유저 레코드 업데이트
+    this.userRepository.save(user);
+    return 'success';
   }
 
   // 유저 패스워드 업데이트

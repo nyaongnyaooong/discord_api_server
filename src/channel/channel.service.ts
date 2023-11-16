@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateChannelDto } from './dto/create-channel.dto';
-import { UpdateChannelDto } from './dto/update-channel.dto';
+import { CreateChannelDto } from './dto/create.channel.dto';
+import { UpdateChannelDto } from './dto/update.channel.dto';
 import { ChatChannel } from 'src/entities/chat.channel.entity';
 import { VoiceChannel } from 'src/entities/voice.channel.entity';
 
@@ -31,23 +31,39 @@ export class ChannelService {
 
     if (createChannelDto.type === 'text') {
       return await this.chatChannelRepository.save(newChannelData)
-    }
-    if (createChannelDto.type === 'voice') {
+    } else if (createChannelDto.type === 'voice') {
       return await this.voiceChannelRepository.save(newChannelData)
-    }
+    } else throw new HttpException({
+      message: 'BAD_REQUEST',
+      statusCode: HttpStatus.BAD_REQUEST
+    }, HttpStatus.BAD_REQUEST);
   }
 
 
 
-  findOne(id: number) {
-    return `This action returns a #${id} channel`;
+  async findOneById(userId: number, type: 'text' | 'voice', id: number) {
+    if (type === 'text') {
+      return await this.chatChannelRepository.findOne({ where: { id: id } });
+    } else if (type === 'voice') {
+      return await this.voiceChannelRepository.findOne({ where: { id: id } });
+    } else throw new HttpException({
+      message: 'BAD_REQUEST',
+      statusCode: HttpStatus.BAD_REQUEST
+    }, HttpStatus.BAD_REQUEST);
   }
 
-  update(id: number, updateChannelDto: UpdateChannelDto) {
-    return `This action updates a #${id} channel`;
+  async update(userId: number, updateChannelDto: UpdateChannelDto) {
+    const channel = await this.findOneById(userId, updateChannelDto.type, updateChannelDto.id);
+    channel.name = updateChannelDto.name;
+    if (updateChannelDto.type === 'text') return this.chatChannelRepository.save(channel);
+    else if (updateChannelDto.type === 'voice') return this.voiceChannelRepository.save(channel);
+    else throw new HttpException({
+      message: 'BAD_REQUEST',
+      statusCode: HttpStatus.BAD_REQUEST
+    }, HttpStatus.BAD_REQUEST);
   }
 
-  remove(id: number) {
+  remove(userId: number, id: number) {
     return `This action removes a #${id} channel`;
   }
 }

@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Chat } from "./chat.entity";
 import { Dm } from "./dm.entity";
@@ -5,23 +6,23 @@ import { ServerMember } from "./server.member.entity";
 
 @Entity()
 export class User {
-  // 유저 고유 아이디디
+  @ApiProperty({ description: '유저 고유 ID' })
   @PrimaryGeneratedColumn()
   id: number;
 
-  // 로그인용 메일 주소
+  @ApiProperty({ description: '로그인용 메일 주소' })
   @Column({ unique: true })
   mail: string;
 
-  // 닉네임
+  @ApiProperty({ description: '유저 닉네임' })
   @Column()
   nickname: string;
 
-  // 암호화된 패스워드
+  @ApiProperty({ description: '암호화된 패스워드' })
   @Column()
   password: string;
 
-  // 아바타 이미지 주소
+  @ApiProperty({ description: '유저가 설정한 아바타 이미지 주소' })
   @Column({ default: '' })
   avatar: string;
 
@@ -35,7 +36,7 @@ export class User {
   deletedAt: Date | null;
 
 
-
+  
   @OneToMany(() => ServerMember, serverMember => serverMember.user)
   serverMember: ServerMember[];
 

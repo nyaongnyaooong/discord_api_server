@@ -9,6 +9,8 @@ import { CandidateSocketDto } from './dto/candidate.socket.dto';
 import { OfferSocketDto } from './dto/offer.socket.dto';
 import { serverMemberDto } from './dto/server.member.dto';
 import { ConfigService } from '@nestjs/config';
+import { DmSocketDto } from './dto/dm.socket.dto';
+import { ApiOperation } from '@nestjs/swagger';
 
 const websocketOption: GatewayMetadata = {
   cors: {
@@ -61,14 +63,6 @@ export class WebsocketGateway {
       return this.websocketService.deleteUserInfo(this.server, client);
     });
   }
-
-
-
-  // async handleDisconnection(client: Socket) {
-  //   console.log(`클라이언트 로그아웃 - ID : ${client.id}`)
-  //   // 클라이언트가 연결을 끊었을 때 실행할 코드
-  //   return this.websocketService.deleteUserInfo(client);
-  // }
 
   // 클라이언트 정보 등록
   @SubscribeMessage('userInfo')
@@ -198,10 +192,23 @@ export class WebsocketGateway {
 
 
 
-  @SubscribeMessage('dm')
-  asdv() {
-    this.websocketService.dm();
+  @SubscribeMessage('reqDmHistory')
+  sendDmHistory(
+    @MessageBody() targetUserId: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    this.websocketService.sendDmHistory(+targetUserId, client);
     // return this.server.emit('ServerToClient', 'dmdmdmdm');
+  }
+
+  @SubscribeMessage('sendDm')
+  async sendDm(
+    @MessageBody() dmSocketDto: DmSocketDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    // const { server_id, ...chatDto } = dmSocketDto
+
+    return await this.websocketService.createDm(dmSocketDto, client)
   }
 
 }

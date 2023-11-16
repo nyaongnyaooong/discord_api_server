@@ -26,14 +26,15 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const options = new DocumentBuilder()
-    .setTitle('title')
-    .setVersion('1.0')
-    .setDescription('desc')
+    .setTitle('Server API Docs')
+    .setVersion('1.0.0')
+    .setDescription('디스코드 클론의 비지니스 로직 API 문서입니다.')
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup(prefix + '/api-docs', app, document, {
-    customSiteTitle: 'sad',
+
+  SwaggerModule.setup(prefix + '/docs', app, document, {
+    customSiteTitle: 'Server API Docs',
   });
 
   await app.listen(port);
