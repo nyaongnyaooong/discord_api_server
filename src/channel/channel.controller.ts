@@ -10,6 +10,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { SwaggerChannelDelete, SwaggerChannelGet, SwaggerChannelPatch, SwaggerChannelPost } from './swagger.decorators';
 import { ChannelListDto } from './dto/channel.list.dto';
 import { ServerService } from 'src/server/server.service';
+import { DeleteChannelDto } from './dto/delete.channel.dto';
 
 @ApiTags('Channel API')
 @Controller('channel')
@@ -24,6 +25,8 @@ export class ChannelController {
   @SwaggerChannelGet()
   @UseGuards(JwtAuthGuard)
   async findChannel(@Req() req: Request, @Query('serverId') serverId: number) {
+    serverId = +serverId;
+
     const userData = req.user as UserDataDto;
 
     // 유저가 서버에 속해있지 않음
@@ -48,19 +51,21 @@ export class ChannelController {
     return this.channelService.create(createChannelDto);
   }
 
-  @Patch(':channelId')
+  @Patch()
   @SwaggerChannelPatch()
-  update(@Req() req: Request, @Param('channelId') channelId: string, @Body() updateChannelDto: UpdateChannelDto) {
+  @UseGuards(JwtAuthGuard)
+  update(@Req() req: Request, @Body() updateChannelDto: UpdateChannelDto) {
     const userData = req.user as UserDataDto;
 
-    return this.channelService.update(+userData.id, +channelId, updateChannelDto);
+    return this.channelService.update(+userData.id, updateChannelDto);
   }
 
-  @Delete(':channelId')
+  @Delete()
   @SwaggerChannelDelete()
-  remove(@Req() req: Request, @Param('channelId') channelId: string) {
+  @UseGuards(JwtAuthGuard)
+  deleteChannel(@Req() req: Request, @Body() deleteChannelDto: DeleteChannelDto) {
     const userData = req.user as UserDataDto;
 
-    return this.channelService.remove(+userData.id, +channelId);
+    return this.channelService.deleteChannel(+userData.id, deleteChannelDto);
   }
 }

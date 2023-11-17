@@ -81,8 +81,8 @@ export class ServerService {
     const isBelong = servers.filter(server => server.server_Id === serverId);
     if (isBelong.length < 1) throw new HttpException({
       message: 'not belong to server',
-      statusCode: 401
-    }, HttpStatus.UNAUTHORIZED)
+      statusCode: HttpStatus.FORBIDDEN
+    }, HttpStatus.FORBIDDEN)
 
     const code = this.randomString(10)
     this.invitationCode[code] = serverId;
@@ -154,9 +154,9 @@ export class ServerService {
 
     // 요청한 유저와 서버 주인이 일치하는지 확인
     if (server.ownerId !== userId) throw new HttpException({
-      message: 'unauthorized',
-      statusCode: HttpStatus.UNAUTHORIZED
-    }, HttpStatus.UNAUTHORIZED)
+      message: 'FORBIDDEN',
+      statusCode: HttpStatus.FORBIDDEN
+    }, HttpStatus.FORBIDDEN)
 
     // 저장할 파일명
     const filename = server.toString();

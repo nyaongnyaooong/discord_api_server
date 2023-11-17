@@ -38,6 +38,13 @@ export class DmService {
   }
 
   getDmList = async (userId: number, targetId: number) => {
+    const list = await this.dmRepository.find({
+      where: [
+        { sender_Id: userId },
+        { receiver_Id: targetId }
+      ]
+    })
+    // console.log(list)
     return this.dmRepository.find({
       where: [
         { sender_Id: userId },

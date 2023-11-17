@@ -41,16 +41,37 @@ export function SwaggerChannelPost() {
       description: '성공적으로 채널이 생성되었음을 의미합니다.',
       type: ChatChannel
     }),
+    ApiBadRequestResponse({
+      description: '올바르지 않은 형식의 요청입니다.',
+      schema: {
+        example: {
+          message: 'BAD_REQUEST',
+          statusCode: HttpStatus.BAD_REQUEST
+        },
+      },
+    }),
   );
 }
 
 export function SwaggerChannelPatch() {
   return applyDecorators(
     ApiOperation({
-      summary: '채널 수정 API',
-      description: '새로운 서버를 생성합니다. 로그인 되어있는 유저의 소유로 만들어집니다.',
+      summary: '채널 업데이트 API',
+      description: '채널의 속성을 업데이트합니다.',
     }),
-
+    ApiOkResponse({
+      description: '성공적으로 채널이 업데이트되었음을 의미합니다.',
+      type: ChatChannel
+    }),
+    ApiBadRequestResponse({
+      description: '올바르지 않은 형식의 요청입니다.',
+      schema: {
+        example: {
+          message: 'BAD_REQUEST',
+          statusCode: HttpStatus.BAD_REQUEST
+        },
+      },
+    }),
   );
 }
 
@@ -60,6 +81,18 @@ export function SwaggerChannelDelete() {
       summary: '채널 삭제 API',
       description: '채널을 서버에서 삭제합니다.',
     }),
-
+    ApiOkResponse({
+      description: '성공적으로 채널이 삭제되었음을 의미합니다.',
+      type: ChatChannel
+    }),
+    ApiBadRequestResponse({
+      description: '올바르지 않은 형식의 요청입니다.',
+      schema: {
+        example: {
+          message: 'BAD_REQUEST',
+          statusCode: HttpStatus.BAD_REQUEST
+        },
+      },
+    }),
   );
 }

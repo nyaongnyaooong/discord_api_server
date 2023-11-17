@@ -5,6 +5,7 @@ import { CreateChannelDto } from './dto/create.channel.dto';
 import { UpdateChannelDto } from './dto/update.channel.dto';
 import { ChatChannel } from 'src/entities/chat.channel.entity';
 import { VoiceChannel } from 'src/entities/voice.channel.entity';
+import { DeleteChannelDto } from './dto/delete.channel.dto';
 
 
 @Injectable()
@@ -39,8 +40,6 @@ export class ChannelService {
     }, HttpStatus.BAD_REQUEST);
   }
 
-
-
   async findOneById(userId: number, type: 'text' | 'voice', id: number) {
     if (type === 'text') {
       return await this.chatChannelRepository.findOne({ where: { id: id } });
@@ -55,6 +54,7 @@ export class ChannelService {
   async update(userId: number, updateChannelDto: UpdateChannelDto) {
     const channel = await this.findOneById(userId, updateChannelDto.type, updateChannelDto.id);
     channel.name = updateChannelDto.name;
+
     if (updateChannelDto.type === 'text') return this.chatChannelRepository.save(channel);
     else if (updateChannelDto.type === 'voice') return this.voiceChannelRepository.save(channel);
     else throw new HttpException({
@@ -63,7 +63,12 @@ export class ChannelService {
     }, HttpStatus.BAD_REQUEST);
   }
 
-  remove(userId: number, id: number) {
-    return `This action removes a #${id} channel`;
+  async deleteChannel(userId: number, deleteChannelDto: DeleteChannelDto) {
+    if (deleteChannelDto.type === 'text') return await this.chatChannelRepository.softDelete({ id: +deleteChannelDto.id })
+    else if (deleteChannelDto.type === 'voice') return await this.voiceChannelRepository.softDelete({ id: +deleteChannelDto.id })
+    else throw new HttpException({
+      message: 'BAD_REQUEST',
+      statusCode: HttpStatus.BAD_REQUEST
+    }, HttpStatus.BAD_REQUEST);
   }
 }

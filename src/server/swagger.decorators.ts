@@ -14,13 +14,16 @@ export function SwaggerServerPost() {
       description: '새로운 서버를 생성합니다. 로그인 되어있는 유저의 소유로 만들어집니다.',
     }),
     ApiCreatedResponse({
-      description: '서버 생성에 성공했음을 의미합니다. 요청한 유저가 속한 모든 서버 리스트를 배열 형태로 반환합니다.',
+      description: '서버 생성에 성공했습니다. 요청한 유저가 속한 모든 서버 리스트를 배열 형태로 반환합니다.',
       type: [ServerMember]
     }),
     ApiUnauthorizedResponse({
-      description: '유저 정보없이 요청했음을 의미합니다.',
+      description: '유저 정보없이 요청했습니다.',
       schema: {
-        example: 'there is no user information',
+        example: {
+          message: "UNAUTHORIZED",
+          statusCode: HttpStatus.UNAUTHORIZED
+        },
       },
     }),
     ApiBadRequestResponse({
@@ -75,14 +78,14 @@ export function SwaggerServerGetMembers() {
       type: [UserListDto]
     }),
     ApiUnauthorizedResponse({
-      description: '유저 정보없이 요청했음을 의미합니다.',
+      description: '유저 정보없이 요청했습니다.',
       schema: {
         example: {
-          "message": "Unauthorized",
-          "statusCode": 401
+          message: "UNAUTHORIZED",
+          statusCode: HttpStatus.UNAUTHORIZED
         },
       },
-    })
+    }),
   );
 }
 
@@ -96,12 +99,12 @@ export function SwaggerServerInvitePost() {
       description: '성공적으로 URL이 생성되었음을 의미합니다. ',
       type: String
     }),
-    ApiUnauthorizedResponse({
+    ApiForbiddenResponse({
       description: '초대권한이 없음을 의미합니다.',
       schema: {
         example: {
           message: 'not belong to server',
-          statusCode: 401
+          statusCode: HttpStatus.FORBIDDEN
         },
       },
     })
@@ -115,7 +118,7 @@ export function SwaggerServerJoinPost() {
       description: '유저를 서버에 입장 시킵니다.',
     }),
     ApiNotFoundResponse({
-      description: '잘못된 초대코드거나 유효기간이 만료된 코드임을 의미합니다.',
+      description: '잘못된 초대코드거나 유효기간이 만료된 코드입니다.',
       schema: {
         example: {
           message: 'code is not valid or has been expired',
@@ -124,7 +127,7 @@ export function SwaggerServerJoinPost() {
       }
     }),
     ApiForbiddenResponse({
-      description: '유저가 이미 서버에 속해있음을 의미합니다.',
+      description: '유저가 이미 서버에 속해있습니다.',
       schema: {
         example: {
           message: 'already joined server',
@@ -142,7 +145,7 @@ export function SwaggerServerAvatarPatch() {
       description: '유저 아바타 이미지를 업데이트합니다. 업로드 성공 시 업로드된 이미지 주소를 반환합니다.',
     }),
     ApiOkResponse({
-      description: '이미지 업로드 성공',
+      description: '성공적으로 업로드에 성공하였습니다.',
       schema: {
         example: 'https://example.com/image.png'
       },
@@ -152,12 +155,12 @@ export function SwaggerServerAvatarPatch() {
       description: '이미지 파일 데이터',
       type: AvatarUpdateDto,
     }),
-    ApiUnauthorizedResponse({
-      description: '유저가 서버 속성 변경 권한이 없음을 의미합니다.',
+    ApiForbiddenResponse({
+      description: '서버 속성 변경 권한이 업습니다.',
       schema: {
         example: {
-          message: 'unauthorized',
-          statusCode: HttpStatus.UNAUTHORIZED
+          message: 'FORBIDDEN',
+          statusCode: HttpStatus.FORBIDDEN
         },
       },
     })
