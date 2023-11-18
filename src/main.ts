@@ -16,7 +16,7 @@ async function bootstrap() {
   // next 서버만 cors 허용
   app.enableCors({
     origin: [process.env.CLIENT_SERVER_URL],
-    methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
+    methods: "GET, PUT, PATCH, POST, DELETE",
     preflightContinue: false,
     optionsSuccessStatus: 204,
     credentials: true
