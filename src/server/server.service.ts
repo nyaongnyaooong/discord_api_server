@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateServerDto } from './dto/create.server.dto';
-import { UpdateServerDto } from './dto/update-server.dto';
+import { UpdateServerDto } from './dto/update.server.dto';
 import { ServerEntity } from 'src/entities/server.entity';
 import { ServerMember } from 'src/entities/server.member.entity';
 import { HttpException, UnauthorizedException } from '@nestjs/common/exceptions';
