@@ -8,7 +8,6 @@ import { UserDataDto } from 'src/user/dto/user.data.dto';
 import { ChatService } from './chat.service';
 import { ApiTags } from '@nestjs/swagger';
 import { SwaggerChannelDelete, SwaggerChannelGet, SwaggerChannelPatch, SwaggerChannelPost } from './swagger.decorators';
-import { ChannelListDto } from './dto/channel.list.dto';
 import { ServerService } from 'src/server/server.service';
 import { DeleteChannelDto } from './dto/delete.channel.dto';
 

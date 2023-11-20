@@ -1,11 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
 import { UserDataDto } from 'src/user/dto/user.data.dto';
 import { DmService } from './dm.service';
-import { CreateDmDto } from './dto/create-dm.dto';
-import { UpdateDmDto } from './dto/update-dm.dto';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/user/security/auth.guard';
-import { SwaggerDmDeleteId, SwaggerDmGetListId, SwaggerDmGetUserList, SwaggerDmPatchId } from './swagger.decorators';
+import { SwaggerDmGetUserList } from './swagger.decorators';
 
 @Controller('dm')
 export class DmController {

@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from 'src/entities/chat.entity';
 import { ChatDto } from './dto/chat.dto';
 import { Repository } from 'typeorm';
-import { ChatSocketDto } from './dto/chat.socket.dto';
 import { Server, Socket } from 'socket.io';
 import { UserDataDto } from 'src/user/dto/user.data.dto';
 import { JoinVoiceDto } from './dto/join.voice.dto';
@@ -42,7 +41,7 @@ export class WebsocketService {
 
   // 클라이언트 소켓 접속 시 유저 데이터를 매칭
   setUserInfo = (userDataDto: UserDataDto, client: Socket) => {
-    console.log(`유저 정보 배열 추가 - ID : ${client.id}`)
+    // console.log(`유저 정보 배열 추가 - ID : ${client.id}`)
     this.userInfo[userDataDto.id] = client.id;
     this.clientInfo[client.id] = userDataDto;
 
@@ -58,7 +57,6 @@ export class WebsocketService {
     // console.log('keys',Object.keys(client.rooms))
     const membersObject = {}
     client.rooms.forEach(room => {
-      console.log('room?', room)
       if (room !== client.id) {
         serverId = room
       }
@@ -67,7 +65,7 @@ export class WebsocketService {
     client.broadcast.to(serverId).emit('offline', this.clientInfo[client.id].id)
 
     // 유저 정보 삭제
-    console.log(`유저 정보 삭제 - ID : ${client.id}`)
+    // console.log(`유저 정보 삭제 - ID : ${client.id}`)
     const userId = this.clientInfo[client.id].id;
     delete this.userInfo[userId];
     delete this.clientInfo[client.id];
@@ -103,7 +101,7 @@ export class WebsocketService {
   sendChatHistory = async (channelId: number, client: Socket) => {
     // 채팅 history를 db에서 불러옴
     const chatListData = await this.findChat(channelId);
-    console.log(chatListData)
+    // console.log(chatListData)
     // 채팅 history 전송
     return client.emit('chatHistory', chatListData)
   }
@@ -204,8 +202,6 @@ export class WebsocketService {
 
   sendDmHistory = async (targetId: number, client: Socket) => {
     const userId = this.clientInfo[client.id].id
-    console.log(targetId)
-    console.log(userId)
 
     const dmList = await this.dmRepository.find({
       where: [
@@ -223,7 +219,6 @@ export class WebsocketService {
     // // 채팅 history를 db에서 불러옴
     // const chatListData = await this.findChat(channelId);
 
-    console.log(dmList)
     // // 채팅 history 전송
     return client.emit('dmHistory', dmList)
   }
@@ -241,7 +236,6 @@ export class WebsocketService {
       },
     })
 
-    console.log(this.userInfo[dmSocketDto.receiver_Id])
     const receiverSocketId = this.userInfo[dmSocketDto.receiver_Id];
     client.emit('newDm', newDmWithUser);
     client.to(receiverSocketId).emit('newDm', newDmWithUser);

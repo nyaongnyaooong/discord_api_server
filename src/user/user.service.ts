@@ -79,7 +79,6 @@ export class UserService {
       })
       .promise();
 
-    console.log(reqUpload);
     const imgUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${folder}/${filename}`;
 
     // 유저 레코드 검색 및 아바타 이미지 URL 변경
@@ -95,9 +94,7 @@ export class UserService {
   // 유저 닉네임 업데이트
   updateNickname = async (userId: number, newNickname: string) => {
     const user = await this.findOneById(userId);
-    console.log('user', user)
     user.nickname = newNickname;
-    console.log('user2', user)
 
     // 유저 레코드 업데이트
     this.userRepository.save(user);

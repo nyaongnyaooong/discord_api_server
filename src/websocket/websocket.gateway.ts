@@ -10,7 +10,6 @@ import { OfferSocketDto } from './dto/offer.socket.dto';
 import { serverMemberDto } from './dto/server.member.dto';
 import { ConfigService } from '@nestjs/config';
 import { DmSocketDto } from './dto/dm.socket.dto';
-import { ApiOperation } from '@nestjs/swagger';
 
 const websocketOption: GatewayMetadata = {
   cors: {
@@ -31,7 +30,6 @@ export class WebsocketGateway {
   ) {
 
   }
-
 
   @WebSocketServer()
   server: Server;
@@ -56,10 +54,10 @@ export class WebsocketGateway {
 
   async handleConnection(client: Socket) {
     // 클라이언트와 연결되었을 때 실행할 코드
-    console.log(`Socket 접속 - ID : ${client.id}`)
+    // console.log(`Socket 접속 - ID : ${client.id}`)
 
     client.on('disconnecting', (reason) => {
-      console.log(`클라이언트 로그아웃 - ID : ${client.id}`)
+      // console.log(`클라이언트 로그아웃 - ID : ${client.id}`)
       return this.websocketService.deleteUserInfo(this.server, client);
     });
   }
@@ -99,8 +97,6 @@ export class WebsocketGateway {
   ) {
     const { server_id, ...chatDto } = chatSocketDto
 
-    console.log(client.rooms)
-    console.log(server_id)
     return await this.websocketService.createChat(this.server, server_id, chatDto)
   }
 
@@ -182,7 +178,6 @@ export class WebsocketGateway {
   async reqExit(
     @ConnectedSocket() client: Socket,
   ) {
-    console.log('is reqExit alive?')
     // return this.websocketService.reqExit(client)
     // return client.to(clientId).emit('candidate', { clientId: client.id, candidate: rtcIceCandidate });
   }

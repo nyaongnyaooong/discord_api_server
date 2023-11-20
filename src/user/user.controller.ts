@@ -84,7 +84,6 @@ export class UserController {
   @SwaggerGetAuth()
   @UseGuards(JwtAuthGuard)
   isAuth(@Req() req: Request) {
-    console.log('유저데이터?', req.user)
     const { id, mail, nickname, avatar, createdAt, updatedAt } = req.user as User;
     const userData: UserDataDto = {
       id,

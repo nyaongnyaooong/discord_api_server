@@ -4,7 +4,6 @@ import helmet from 'helmet';
 import * as morgan from 'morgan';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,7 +21,7 @@ async function bootstrap() {
     credentials: true
   });
   app.use(helmet());
-  app.use(morgan('dev'));
+  // app.use(morgan('dev'));
   app.use(cookieParser());
 
   const options = new DocumentBuilder()

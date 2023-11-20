@@ -13,7 +13,6 @@ export class JwtConfig implements JwtOptionsFactory {
   ) { }
 
   createJwtOptions(): JwtModuleOptions {
-    console.log(this.configService.get('SECRET_KEY'))
     return {
       secret: this.configService.get('SECRET_KEY'),
       signOptions: { expiresIn: '300s' },
