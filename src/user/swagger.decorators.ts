@@ -1,10 +1,11 @@
+import { HttpStatus } from '@nestjs/common';
 import { applyDecorators } from '@nestjs/common/decorators';
 import { ApiAcceptedResponse, ApiBadRequestResponse, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AvatarUpdateDto } from './dto/avatar.update.dto';
 import { UserCreatedDto } from './dto/user.created.dto';
 import { UserDataDto } from './dto/user.data.dto';
 
-export function SwaggerPostRegister() {
+export function SwaggerUserPostRegister() {
   return applyDecorators(
     ApiOperation({
       summary: '회원가입 API',
@@ -23,7 +24,7 @@ export function SwaggerPostRegister() {
   );
 }
 
-export function SwaggerPostLogin() {
+export function SwaggerUserPostLogin() {
   return applyDecorators(
     ApiOperation({
       summary: '로그인 API',
@@ -50,7 +51,7 @@ export function SwaggerPostLogin() {
   );
 }
 
-export function SwaggerPostLogout() {
+export function SwaggerUserPostLogout() {
   return applyDecorators(
     ApiOperation({
       summary: '로그아웃 API',
@@ -65,7 +66,7 @@ export function SwaggerPostLogout() {
   );
 }
 
-export function SwaggerPatchAvatar() {
+export function SwaggerUserPatchAvatar() {
   return applyDecorators(
     ApiOperation({
       summary: '유저 아바타 업데이트 API',
@@ -85,7 +86,7 @@ export function SwaggerPatchAvatar() {
   );
 }
 
-export function SwaggerPatchNickName() {
+export function SwaggerUserPatchNickName() {
   return applyDecorators(
     ApiOperation({
       summary: '유저 닉네임 업데이트 API',
@@ -100,7 +101,7 @@ export function SwaggerPatchNickName() {
   );
 }
 
-export function SwaggerPatchPassword() {
+export function SwaggerUserPatchPassword() {
   return applyDecorators(
     ApiOperation({
       summary: '유저 패스워드 업데이트 API',
@@ -115,7 +116,7 @@ export function SwaggerPatchPassword() {
   );
 }
 
-export function SwaggerGetAuth() {
+export function SwaggerUserGetAuth() {
   return applyDecorators(
     ApiOperation({
       summary: '토큰 인증 API',
@@ -130,6 +131,34 @@ export function SwaggerGetAuth() {
       schema: {
         example: 'user does not exist'
       }
+    })
+  );
+}
+
+export function SwaggerUserDelete() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '회원탈퇴 API',
+      description: '유저의 정보를 삭제처리합니다.',
+    }),
+    ApiOkResponse({
+      description: '해당 유저가 탈퇴처리되었습니다.',
+      schema: {
+        example: {
+          generatedMaps: [],
+          raw: [],
+          affected: 1
+        }
+      }
+    }),
+    ApiUnauthorizedResponse({
+      description: '유저 정보가 없습니다.',
+      schema: {
+        example: {
+          message: 'UNAUTHORIZED',
+          statusCode: HttpStatus.UNAUTHORIZED
+        },
+      },
     })
   );
 }

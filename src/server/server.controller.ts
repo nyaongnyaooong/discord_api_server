@@ -6,7 +6,7 @@ import { Request } from 'express';
 import { UserDataDto } from 'src/user/dto/user.data.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
-import { SwaggerServerAvatarPatch, SwaggerServerGet, SwaggerServerGetMembers, SwaggerServerGetUsers, SwaggerServerInvitePost, SwaggerServerJoinPost, SwaggerServerPost } from './swagger.decorators';
+import { SwaggerServerAvatarPatch, SwaggerServerDelete, SwaggerServerGet, SwaggerServerGetMembers, SwaggerServerGetUsers, SwaggerServerInvitePost, SwaggerServerJoinPost, SwaggerServerPost } from './swagger.decorators';
 
 
 @ApiTags('Server API')
@@ -88,6 +88,14 @@ export class ServerController {
   async updateAvatar(@Req() req: Request, @Param('serverId') serverId: string, @UploadedFile() imgFile: Express.Multer.File) {
     const userData = req.user as UserDataDto;
     return this.serverService.updateAvatar(+userData.id, +serverId, imgFile);
+  }
+
+  @Delete(':serverId')
+  @SwaggerServerDelete()
+  @UseGuards(JwtAuthGuard)
+  async deleteServer(@Req() req: Request, @Param('serverId') serverId: number) {
+    const userData = req.user as UserDataDto;
+    return this.serverService.deleteServer(+userData.id, +serverId);
   }
 
 }

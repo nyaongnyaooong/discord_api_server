@@ -26,7 +26,6 @@ export class ChatChannel {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  // @ApiProperty({ description: '채널 삭제일' })
   @DeleteDateColumn()
   deletedAt: Date | null;
 

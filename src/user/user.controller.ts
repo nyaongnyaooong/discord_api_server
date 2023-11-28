@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Req, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Req, UseGuards, UseInterceptors, UploadedFile, HttpException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserRegisterDto } from './dto/user.register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -12,7 +12,7 @@ import { UserDataDto } from './dto/user.data.dto';
 import { UpdatePwDto } from './dto/update.pw.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { UpdateProfileDto } from './dto/update.profile.dto';
-import { SwaggerGetAuth, SwaggerPatchAvatar, SwaggerPatchNickName, SwaggerPatchPassword, SwaggerPostLogin, SwaggerPostLogout, SwaggerPostRegister } from './swagger.decorators';
+import { SwaggerUserDelete, SwaggerUserGetAuth, SwaggerUserPatchAvatar, SwaggerUserPatchNickName, SwaggerUserPatchPassword, SwaggerUserPostLogin, SwaggerUserPostLogout, SwaggerUserPostRegister } from './swagger.decorators';
 
 
 @ApiTags('User API')
@@ -24,13 +24,13 @@ export class UserController {
   ) { }
 
   @Post('/register')
-  @SwaggerPostRegister()
+  @SwaggerUserPostRegister()
   async register(@Body() userRegisterDto: UserRegisterDto) {
     return this.userService.register(userRegisterDto);
   }
 
   @Post('/login')
-  @SwaggerPostLogin()
+  @SwaggerUserPostLogin()
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     // jwt 토큰 생성
     const jwt = await this.authService.createJwt(loginDto);
@@ -47,7 +47,7 @@ export class UserController {
   }
 
   @Post('logout')
-  @SwaggerPostLogout()
+  @SwaggerUserPostLogout()
   logOut(@Req() req: Request, @Res() res: Response) {
     // req.logout();
     res.clearCookie('accessToken', { httpOnly: true })
@@ -55,7 +55,7 @@ export class UserController {
   }
 
   @Patch('avatar')
-  @SwaggerPatchAvatar()
+  @SwaggerUserPatchAvatar()
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async updateAvata(@Req() req: Request, @UploadedFile() imgFile: Express.Multer.File) {
@@ -64,7 +64,7 @@ export class UserController {
   }
 
   @Patch('nickname')
-  @SwaggerPatchNickName()
+  @SwaggerUserPatchNickName()
   @UseGuards(JwtAuthGuard)
   async updateNickname(@Req() req: Request, @Body() updateProfileDto: UpdateProfileDto) {
     const userData = req.user as UserDataDto
@@ -72,7 +72,7 @@ export class UserController {
   }
 
   @Patch('password')
-  @SwaggerPatchPassword()
+  @SwaggerUserPatchPassword()
   @UseGuards(JwtAuthGuard)
   async updatePw(@Req() req: Request, @Body() updatePwDto: UpdatePwDto) {
     const userData = req.user as UserDataDto
@@ -81,7 +81,7 @@ export class UserController {
   }
 
   @Get('auth')
-  @SwaggerGetAuth()
+  @SwaggerUserGetAuth()
   @UseGuards(JwtAuthGuard)
   isAuth(@Req() req: Request) {
     const { id, mail, nickname, avatar, createdAt, updatedAt } = req.user as User;
@@ -94,6 +94,19 @@ export class UserController {
       updatedAt
     }
     return userData;
+  }
+
+  @Delete()
+  @SwaggerUserDelete()
+  @UseGuards(JwtAuthGuard)
+  deleteUser(@Req() req: Request) {
+    const userData = req.user as UserDataDto;
+    if (isNaN(userData.id) || !userData.id) throw new HttpException({
+      message: 'BAD_REQUEST',
+      statusCode: HttpStatus.BAD_REQUEST
+    }, HttpStatus.BAD_REQUEST);
+
+    return this.userService.deleteUser(+userData.id);
   }
 }
 

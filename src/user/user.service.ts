@@ -115,6 +115,9 @@ export class UserService {
     return userNoPw;
   }
 
+  async deleteUser(userId: number) {
+    return await this.userRepository.softDelete({ id: userId });
+  }
   /**
   *  패스워드 해시화 함수  
   * @param {string} password 해시화 전 패스워드

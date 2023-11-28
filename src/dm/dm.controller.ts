@@ -4,7 +4,9 @@ import { DmService } from './dm.service';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/user/security/auth.guard';
 import { SwaggerDmGetUserList } from './swagger.decorators';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('DM API')
 @Controller('dm')
 export class DmController {
   constructor(private readonly dmService: DmService) {}

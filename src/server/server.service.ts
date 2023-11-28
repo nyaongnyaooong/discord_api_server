@@ -56,7 +56,10 @@ export class ServerService {
       .getMany()
 
     const isMember = userList.filter(member => reqUserId === member.user_Id);
-    if (!isMember.length) throw new HttpException('user is not member of server', HttpStatus.UNAUTHORIZED);
+    if (!isMember.length) throw new HttpException({
+      message: 'FORBIDDEN',
+      statusCode: HttpStatus.FORBIDDEN
+    }, HttpStatus.FORBIDDEN);
 
     return userList;
   }
@@ -198,8 +201,19 @@ export class ServerService {
     return `This action updates a #${id} server`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} server`;
+  async deleteServer(userId: number, serverId: number) {
+    if (isNaN(userId) || isNaN(serverId)) throw new HttpException({
+      message: 'BAD_REQUEST',
+      statusCode: HttpStatus.BAD_REQUEST
+    }, HttpStatus.BAD_REQUEST);
+
+    const record = await this.serverRepository.findOne({ where: { id: serverId } });
+    if (record.ownerId !== userId) throw new HttpException({
+      message: 'FORBIDDEN',
+      statusCode: HttpStatus.FORBIDDEN
+    }, HttpStatus.FORBIDDEN);
+
+    return await this.serverRepository.softDelete({ id: serverId });
   }
 
   // 서버 id로 유저 record 검색

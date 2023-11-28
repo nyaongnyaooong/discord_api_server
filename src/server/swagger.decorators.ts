@@ -18,7 +18,7 @@ export function SwaggerServerPost() {
       type: [ServerMember]
     }),
     ApiUnauthorizedResponse({
-      description: '유저 정보없이 요청했습니다.',
+      description: '유저 정보가 없습니다.',
       schema: {
         example: {
           message: "UNAUTHORIZED",
@@ -58,10 +58,22 @@ export function SwaggerServerGetUsers() {
       description: '유저 리스트를 성공적으로 불러왔음을 의미합니다. ',
       type: [UserListDto]
     }),
-    ApiUnauthorizedResponse({
-      description: '유저가 요청한 서버에 속해 있지 않아 리스트를 받아올 권한이 없음을 의미합니다. 유저정보는 쿠키에 저장되어있는 accessToken값으로부터 읽어옵니다.',
+    ApiForbiddenResponse({
+      description: '유저가 요청한 서버에 속해 있지 않아 리스트를 받아올 권한이 없습니다.',
       schema: {
-        example: 'user is not member of server',
+        example: {
+          message: 'FORBIDDEN',
+          statusCode: HttpStatus.FORBIDDEN
+        },
+      },
+    }),
+    ApiUnauthorizedResponse({
+      description: '유저 정보가 없습니다.',
+      schema: {
+        example: {
+          message: "UNAUTHORIZED",
+          statusCode: HttpStatus.UNAUTHORIZED
+        },
       },
     }),
   );
@@ -78,7 +90,7 @@ export function SwaggerServerGetMembers() {
       type: [UserListDto]
     }),
     ApiUnauthorizedResponse({
-      description: '유저 정보없이 요청했습니다.',
+      description: '유저 정보가 없습니다.',
       schema: {
         example: {
           message: "UNAUTHORIZED",
@@ -99,6 +111,15 @@ export function SwaggerServerInvitePost() {
       description: '성공적으로 URL이 생성되었음을 의미합니다. ',
       type: String
     }),
+    ApiUnauthorizedResponse({
+      description: '유저 정보가 없습니다.',
+      schema: {
+        example: {
+          message: "UNAUTHORIZED",
+          statusCode: HttpStatus.UNAUTHORIZED
+        },
+      },
+    }),
     ApiForbiddenResponse({
       description: '초대권한이 없음을 의미합니다.',
       schema: {
@@ -116,6 +137,15 @@ export function SwaggerServerJoinPost() {
     ApiOperation({
       summary: '서버 입장 API',
       description: '유저를 서버에 입장 시킵니다.',
+    }),
+    ApiUnauthorizedResponse({
+      description: '유저 정보가 없습니다.',
+      schema: {
+        example: {
+          message: "UNAUTHORIZED",
+          statusCode: HttpStatus.UNAUTHORIZED
+        },
+      },
     }),
     ApiNotFoundResponse({
       description: '잘못된 초대코드거나 유효기간이 만료된 코드입니다.',
@@ -155,8 +185,63 @@ export function SwaggerServerAvatarPatch() {
       description: '이미지 파일 데이터',
       type: AvatarUpdateDto,
     }),
+    ApiUnauthorizedResponse({
+      description: '유저 정보가 없습니다.',
+      schema: {
+        example: {
+          message: "UNAUTHORIZED",
+          statusCode: HttpStatus.UNAUTHORIZED
+        },
+      },
+    }),
     ApiForbiddenResponse({
       description: '서버 속성 변경 권한이 업습니다.',
+      schema: {
+        example: {
+          message: 'FORBIDDEN',
+          statusCode: HttpStatus.FORBIDDEN
+        },
+      },
+    })
+  );
+}
+
+export function SwaggerServerDelete() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '서버 삭제 API',
+      description: '서버를 삭제합니다.',
+    }),
+    ApiOkResponse({
+      description: '성공적으로 삭제에 성공하였습니다.',
+      schema: {
+        example: {
+          generatedMaps: [],
+          raw: [],
+          affected: 1
+        }
+      },
+    }),
+    ApiUnauthorizedResponse({
+      description: '유저 정보가 없습니다.',
+      schema: {
+        example: {
+          message: "UNAUTHORIZED",
+          statusCode: HttpStatus.UNAUTHORIZED
+        },
+      },
+    }),
+    ApiBadRequestResponse({
+      description: '요청 형식이 잘못되었습니다.',
+      schema: {
+        example: {
+          message: 'BAD_REQUEST',
+          statusCode: HttpStatus.BAD_REQUEST
+        },
+      },
+    }),
+    ApiForbiddenResponse({
+      description: '서버 삭제 권한이 업습니다.',
       schema: {
         example: {
           message: 'FORBIDDEN',

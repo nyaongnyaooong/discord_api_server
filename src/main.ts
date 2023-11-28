@@ -21,7 +21,7 @@ async function bootstrap() {
     credentials: true
   });
   app.use(helmet());
-  // app.use(morgan('dev'));
+  app.use(morgan('dev'));
   app.use(cookieParser());
 
   const options = new DocumentBuilder()
