@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { ServerEntity } from "./server.entity";
 import { User } from "./user.entity";
 
@@ -17,6 +17,8 @@ export class ServerMember {
   @CreateDateColumn({ type: 'timestamp' })
   joinedAt: Date;
 
+  @DeleteDateColumn()
+  leavedAt: Date | null;
 
   
   @ManyToOne(() => User, user => user.serverMember)

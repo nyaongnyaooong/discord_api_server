@@ -213,7 +213,7 @@ export function SwaggerServerDelete() {
       description: '서버를 삭제합니다.',
     }),
     ApiOkResponse({
-      description: '성공적으로 삭제에 성공하였습니다.',
+      description: '성공적으로 삭제되었습니다.',
       schema: {
         example: {
           generatedMaps: [],

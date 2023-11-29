@@ -43,6 +43,7 @@ export class ServerController {
     const userData = req.user as UserDataDto;
 
     const serverData = await this.serverService.findUserServers(+userData.id);
+    console.log(serverData)
     return { userData, serverData };
   }
 

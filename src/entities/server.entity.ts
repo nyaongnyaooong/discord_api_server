@@ -17,7 +17,7 @@ export class ServerEntity {
   @ApiProperty({ description: '서버명' })
   @Column()
   name: string;
-  
+
   @ApiProperty({ description: '아바타 이미지 URL' })
   @Column({ default: '' })
   avatar: string;
@@ -34,9 +34,13 @@ export class ServerEntity {
   @DeleteDateColumn()
   deletedAt: Date | null;
 
-  
 
-  @OneToMany(() => ServerMember, serverMember => serverMember.server)
+
+  @OneToMany(
+    () => ServerMember,
+    serverMember => serverMember.server,
+    { cascade: true }
+  )
   serverMember: ServerMember[];
 
   @OneToMany(() => ChatChannel, chatChannel => chatChannel.server)

@@ -19,6 +19,6 @@ export class UploadController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async uploadChatFile(@UploadedFile() file: Express.Multer.File) {
-    return this.uploadService.uploadFile(file, '/chats')
+    return this.uploadService.uploadFile(file, '/chats');
   }
 }

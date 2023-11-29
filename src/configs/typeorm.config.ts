@@ -10,6 +10,11 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
   ) { }
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
+    const envLogging = this.configService.get<string>('LOGGING');
+    const isLogging = envLogging && envLogging !== 'false' ?
+      true :
+      false;
+
     return {
       type: this.configService.get<any>('TYPEORM_TYPE'),
       host: this.configService.get<string>('TYPEORM_HOST'),
@@ -18,8 +23,8 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       password: this.configService.get<string>('TYPEORM_PASSWORD'),
       database: this.configService.get<string>('TYPEORM_DB'),
       entities: [__dirname + '/../**/*.entity.{js,ts}'],
-      // logging: true,
-      synchronize: true
+      logging: isLogging,
+      synchronize: this.configService.get<any>('DEV') ? true : false
     };
   }
   // const a = new Chat

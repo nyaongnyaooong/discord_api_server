@@ -207,11 +207,14 @@ export class ServerService {
       statusCode: HttpStatus.BAD_REQUEST
     }, HttpStatus.BAD_REQUEST);
 
-    const record = await this.serverRepository.findOne({ where: { id: serverId } });
+    const record = await this.serverRepository.findOne({ where: { id: serverId }, relations: ['serverMember'] });
     if (record.ownerId !== userId) throw new HttpException({
       message: 'FORBIDDEN',
       statusCode: HttpStatus.FORBIDDEN
     }, HttpStatus.FORBIDDEN);
+
+    // return await this.serverRepository.restore({ id: serverId });
+    await this.serverMemberRepository.softDelete({ server_Id: serverId });
 
     return await this.serverRepository.softDelete({ id: serverId });
   }
